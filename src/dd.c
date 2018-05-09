@@ -45,6 +45,7 @@ int main( int argc, char **argv ) {
 							fputs("Input file doesn't exist!\n", stderr);
 						}
 						return 1;
+					}
 
 				} else {
 					fputs("Too many input files!", stderr);
