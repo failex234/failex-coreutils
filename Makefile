@@ -1,7 +1,9 @@
-all: echo true false yes dd
+all: mkbuild echo true false yes dd
 
+mkbuild:
+	mkdir -p build
 clean:
-	rm build/*
+	rm -rf build/
 echo:
 	gcc -o build/echo src/echo.c
 true:
