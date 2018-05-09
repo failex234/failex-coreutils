@@ -77,14 +77,13 @@ int main( int argc, char **argv ) {
 			return 1;
 		}
 
-		//Get file size
-		fseek(input, 0L, SEEK_END);
-		int filesize = ftell(input);
-		fseek(input, 0L, SEEK_SET);
-
-		int c;
-		for (int i = 0; i < filesize; i++) {
+		int c = 0;
+		
+		while(c != EOF) {
 			c = fgetc(input);
+			if (c == EOF) {
+				break;
+			}
 			fputc(c, output);
 		}
 
