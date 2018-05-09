@@ -1,4 +1,4 @@
-all: echo true false yes
+all: echo true false yes dd
 
 clean:
 	rm build/*
