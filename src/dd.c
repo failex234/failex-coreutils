@@ -70,11 +70,13 @@ int main( int argc, char **argv ) {
 				}
 			}
 		}
+
 		if (!inputgiven || !outputgiven) {
 			usage(argv[0]);
 			return 1;
 		}
 
+		//Get file size
 		fseek(input, 0L, SEEK_END);
 		int filesize = ftell(input);
 		fseek(input, 0L, SEEK_SET);
@@ -103,6 +105,8 @@ char *getpathofarg( char *string ) {
 	char *temp = malloc(sizeof(char) * (strlen(string) - 2));
 
 	int j = 0;
+
+	//Copy filepath into a new string without if= or of= 
 	for (int i = 3; i < strlen(string); i++) {
 		temp[j] = string[i];
 		j++;
