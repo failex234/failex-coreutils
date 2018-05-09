@@ -10,12 +10,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
 
 FILE *input;
 FILE *output;
 
 char *getpathofarg( char *string );
 void usage( char *prgname );
+
+//TODO: free all string pointers, close files in all cases
 
 int main( int argc, char **argv ) {
 	if (argc < 3) {
@@ -42,6 +46,14 @@ int main( int argc, char **argv ) {
 				if (!outputgiven) {
 					outputgiven = 1;
 					output = fopen(getpathofarg(argv[i]), "wb");
+
+					//Check if user is permitted to write to the output file
+					if (output == NULL) {
+						if (errno == EACCES) {
+							fputs("Access to output file denied, please rerun command as a privileged user!\n", stderr);
+							return 1;
+						}		
+					}
 				} else {
 					fputs("Only one output is possible!\n", stderr);
 					return 1;
