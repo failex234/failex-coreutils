@@ -43,18 +43,18 @@ int main( int argc, char **argv ) {
 					outputgiven = 1;
 					output = fopen(getpathofarg(argv[i]), "wb");
 				} else {
-					fputs("Only one output is possible!", stderr);
+					fputs("Only one output is possible!\n", stderr);
 					return 1;
 				}
 			}
 		}
 		if (!inputgiven || !outputgiven) {
-			usage();
+			usage(argv[0]);
 			return 1;
 		}
 
 		if (input == NULL) {
-			fputs("Input file doesn't exist!", stderr);
+			fputs("Input file doesn't exist!\n", stderr);
 			return 1;
 		}
 
