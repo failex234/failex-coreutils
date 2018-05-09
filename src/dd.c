@@ -36,6 +36,16 @@ int main( int argc, char **argv ) {
 				if (!inputgiven) {
 					inputgiven = 1;
 					input = fopen(getpathofarg(argv[i]), "rb");
+
+					//Check if user is permitted to read the input file
+					if (input == NULL) {
+						if (errno == EACCES) {
+							fputs("Access to input file denied, please rerun command as a privileged user!\n", stderr);
+						} else {
+							fputs("Input file doesn't exist!\n", stderr);
+						}
+						return 1;
+
 				} else {
 					fputs("Too many input files!", stderr);
 					return 1;
@@ -62,11 +72,6 @@ int main( int argc, char **argv ) {
 		}
 		if (!inputgiven || !outputgiven) {
 			usage(argv[0]);
-			return 1;
-		}
-
-		if (input == NULL) {
-			fputs("Input file doesn't exist!\n", stderr);
 			return 1;
 		}
 
