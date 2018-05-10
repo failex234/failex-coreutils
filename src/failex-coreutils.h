@@ -1,7 +1,7 @@
 #ifndef FLX_COREUTILS_H
 #define FLX_COREUTILS_H
 
-const char VERSION[] = "0.0.1";
+const char VERSION[] = "0.0.0.1";
 const char AUTHOR[] = "Felix Naumann";
 const char URL[] = "https://github.com/failex234/failex-coreutils";
 
