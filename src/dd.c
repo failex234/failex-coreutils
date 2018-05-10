@@ -18,8 +18,6 @@ FILE *output;
 
 char *getpathofarg( char *string );
 
-void usage( char *prgname );
-
 //TODO: free all string pointers, close files in all cases
 
 int main( int argc, char **argv ) {
@@ -99,10 +97,6 @@ int main( int argc, char **argv ) {
 
     return 0;
 
-}
-
-void usage( char *prgname ) {
-    printf("usage: %s if=/path/to/file of=/path/to/file\n", prgname);
 }
 
 char *getpathofarg( char *string ) {
