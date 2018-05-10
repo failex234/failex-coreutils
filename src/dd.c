@@ -22,10 +22,6 @@ void usage( char *prgname );
 //TODO: free all string pointers, close files in all cases
 
 int main( int argc, char **argv ) {
-	if (argc < 3) {
-		usage(argv[0]);
-		return 1;
-	} else {
 		//Check if input and output are given
 		//and input leads to an existing file
 		int inputgiven = 0;
@@ -72,9 +68,12 @@ int main( int argc, char **argv ) {
 			}
 		}
 
-		if (!inputgiven || !outputgiven) {
-			usage(argv[0]);
-			return 1;
+		if (!inputgiven) {
+			input = stdin;
+		}
+		
+		if(!outputgiven) {
+			output = stdout;
 		}
 
 		int c = 0;
@@ -94,7 +93,6 @@ int main( int argc, char **argv ) {
 
 		return 0;
 
-	}
 }
 
 void usage( char *prgname ) {
