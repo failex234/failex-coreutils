@@ -1,3 +1,4 @@
+#TODO prettify Makefile
 all: mkbuild echo true false yes dd
 
 mkbuild:
