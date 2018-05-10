@@ -13,10 +13,13 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "failex-coreutils.h"
+
 FILE *input;
 FILE *output;
 
 char *getpathofarg( char *string );
+void help( char *prgname );
 
 //TODO: free all string pointers, close files in all cases
 
@@ -46,6 +49,7 @@ int main( int argc, char **argv ) {
                 fputs("Too many input files!", stderr);
                 return 1;
             }
+	    continue;
         }
 
         if (strstr(argv[i], "of=")) {
@@ -64,7 +68,21 @@ int main( int argc, char **argv ) {
                 fputs("Only one output is possible!\n", stderr);
                 return 1;
             }
+	    continue;
         }
+
+	if (!strcmp(argv[1], "--help")) {
+		help(argv[0]);
+		return 0;
+	}
+
+	if (!strcmp(argv[1], "--version")) {
+		version(argv[0]);
+		return 0;
+	}
+
+	fprintf(stderr, "%s: Unrecognized argument »%s«\n“%s --help“ is here to help.\n", argv[0], argv[i], argv[0]);
+	return 1;
     }
 
     if (!inputgiven) {
@@ -113,4 +131,15 @@ char *getpathofarg( char *string ) {
     temp[strlen(string) - 3] = '\0';
 
     return temp;
+}
+
+void help( char *prgname ) {
+	printf("usage: %s [OPERAND]...\n", prgname);
+	printf("\nCopy the contents of a file to another.\n");
+	printf("cureently implemented operands:\n");
+	printf("\nif=/path/to/file/       read from file instead of stdin\n");
+	printf("of=/path/to/file/       write to file instead of stdout\n");
+	printf("\ncurrently implemented arguments:\n");
+	printf("\n--help       show this menu then exit\n");
+	printf("--version    show version information then exit\n\n");
 }
