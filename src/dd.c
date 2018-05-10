@@ -83,13 +83,17 @@ int main( int argc, char **argv ) {
 			if (c == EOF) {
 				break;
 			}
-			fputc(c, output);
+
+			//Check if in- and output are stdin and stdout and they're not piped
+			if((!isatty(STDIN_FILENO) || input != stdin) || (!isatty(STDOUT_FILENO) || output != stdout)) {
+				fputc(c, output);
+			}
 		}
 
 		fclose(input);
 		fclose(output);
 
-		puts("Complete!");
+		fputs("Complete!\n", stdout);
 
 		return 0;
 
