@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
@@ -22,6 +23,9 @@ FILE *output;
 
 long copied;
 long b_copied;
+int curr_blocks;
+long blocks_copied;
+int block_size = 512;
 
 struct timeval start;
 struct timeval end;
@@ -29,9 +33,10 @@ double runtime;
 
 double avg_rate;
 
-char *getpathofarg( char *string );
+char *getvalofarg( char *string, int start );
 void help( char *prgname );
 void conclusion( void );
+void run_dd( void );
 
 int main( int argc, char **argv ) {
 
@@ -40,12 +45,13 @@ int main( int argc, char **argv ) {
     //and input leads to an existing file
     int inputgiven = 0;
     int outputgiven = 0;
+    int bsgiven = 0;
 
     for (int i = 1; i < argc; i++) {
         if (strstr(argv[i], "if=")) {
             if (!inputgiven) {
                 inputgiven = 1;
-                input = fopen(getpathofarg(argv[i]), "rb");
+                input = fopen(getvalofarg(argv[i], 3), "rb");
 
                 //Check if user is permitted to read the input file
                 if (input == NULL) {
@@ -67,7 +73,7 @@ int main( int argc, char **argv ) {
         if (strstr(argv[i], "of=")) {
             if (!outputgiven) {
                 outputgiven = 1;
-                output = fopen(getpathofarg(argv[i]), "wb");
+                output = fopen(getvalofarg(argv[i], 3), "wb");
 
                 //Check if user is permitted to write to the output file
                 if (output == NULL) {
@@ -82,6 +88,15 @@ int main( int argc, char **argv ) {
             }
 	    continue;
         }
+
+	if(strstr(argv[i], "bs=")) {
+		if(!bsgiven) {
+			block_size = atoi(getvalofarg(argv[i], 3));
+			bsgiven = 1;
+		}
+		continue;
+				
+	}
 
 	if (!strcmp(argv[1], "--help")) {
 		help(argv[0]);
@@ -105,30 +120,19 @@ int main( int argc, char **argv ) {
         output = stdout;
     }
 
-    int c = 0;
-
-    gettimeofday(&start, NULL);
-    while ((c = fgetc(input)) != EOF) {
-        //Check if in- and output are stdin and stdout and they're not piped
-        if ((!isatty(STDIN_FILENO) || input != stdin) || (!isatty(STDOUT_FILENO) || output != stdout)) {
-            fputc(c, output);
-	    copied++;
-        }
-    }
-    fputs("Complete!\n", stdout);
-    conclusion();
+    run_dd();
     return 0;
 
 }
 
-char *getpathofarg( char *string ) {
+char *getvalofarg( char *string, int start ) {
     char *temp = malloc(sizeof(char) * (strlen(string) - 2));
 
 
     int j = 0;
 
-    //Copy filepath into a new string without if= or of=
-    for (int i = 3; i < strlen(string); i++) {
+    //Copy filepath into a new string without if= or of= etc.
+    for (int i = start; i < strlen(string); i++) {
         temp[j] = string[i];
         j++;
     }
@@ -144,9 +148,31 @@ void help( char *prgname ) {
 	printf("currently implemented operands:\n");
 	printf("\nif=/path/to/file/       read from file instead of stdin\n");
 	printf("of=/path/to/file/       write to file instead of stdout\n");
+	printf("bs=SIZE                 set BLOCKSIZE to SIZE\n");
 	printf("\ncurrently implemented arguments:\n");
 	printf("\n--help       show this menu then exit\n");
 	printf("--version    show version information then exit\n\n");
+}
+
+void run_dd( void ) {
+	gettimeofday(&start, NULL);
+	int c = 0;
+
+	while((c = fgetc(input)) != EOF) {
+		if ((!isatty(STDIN_FILENO) || input != stdin) || (!isatty(STDOUT_FILENO) || output != stdout)) {
+			fputc(c, output);
+			copied++;
+			curr_blocks += sizeof(char);
+
+			if(curr_blocks >= block_size) {
+				curr_blocks = 0;
+				blocks_copied++;
+			}
+		}
+	}
+
+	fputs("Complete!\n", stdout);
+	conclusion();
 }
 
 void conclusion( void ) {
@@ -157,10 +183,11 @@ void conclusion( void ) {
 	avg_rate =  (b_copied / 1000) / runtime;
 
 	if(b_copied < 1000000) {
-		printf("%ld bytes copied, %fs, %.02fkb/s\n", b_copied, runtime, avg_rate);
+		printf("%ld bytes copied, %f s, %.02f kB/s\n", b_copied, runtime, avg_rate);
 	} else {
-		printf("%ld bytes copied (%d MB, %d MiB), %fs, %.02fkb/s\n", b_copied, (int) b_copied / 1000000, (int) b_copied / 1048576, runtime, avg_rate);
+		printf("%ld bytes copied (%d MB, %d MiB), %f s, %.02fkB /s\n", b_copied, (int) b_copied / 1000000, (int) b_copied / 1048576, runtime, avg_rate);
 	}
+	printf("%ld blocks copied\n", blocks_copied);
 
 	fclose(input);
 	fclose(output);
