@@ -13,12 +13,21 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #include "failex-coreutils.h"
 
 FILE *input;
 FILE *output;
-volatile int run = 1;
+
+long copied;
+long b_copied;
+
+struct timeval start;
+struct timeval end;
+double runtime;
+
+double avg_rate;
 
 char *getpathofarg( char *string );
 void help( char *prgname );
@@ -98,13 +107,15 @@ int main( int argc, char **argv ) {
 
     int c = 0;
 
+    gettimeofday(&start, NULL);
     while ((c = fgetc(input)) != EOF) {
         //Check if in- and output are stdin and stdout and they're not piped
         if ((!isatty(STDIN_FILENO) || input != stdin) || (!isatty(STDOUT_FILENO) || output != stdout)) {
             fputc(c, output);
+	    copied++;
         }
     }
-
+    fputs("Complete!\n", stdout);
     conclusion();
     return 0;
 
@@ -112,6 +123,7 @@ int main( int argc, char **argv ) {
 
 char *getpathofarg( char *string ) {
     char *temp = malloc(sizeof(char) * (strlen(string) - 2));
+
 
     int j = 0;
 
@@ -138,7 +150,17 @@ void help( char *prgname ) {
 }
 
 void conclusion( void ) {
-	fputs("Complete!\n", stdout);
+	b_copied = (double) copied * sizeof(char);
+	gettimeofday(&end, NULL);
+	runtime = (double) (end.tv_usec - start.tv_usec) / 1000000 + (double) (end.tv_sec - start.tv_sec);
+
+	avg_rate =  (b_copied / 1000) / runtime;
+
+	if(b_copied < 1000000) {
+		printf("%ld bytes copied, %fs, %.02fkb/s\n", b_copied, runtime, avg_rate);
+	} else {
+		printf("%ld bytes copied (%d MB, %d MiB), %fs, %.02fkb/s\n", b_copied, (int) b_copied / 1000000, (int) b_copied / 1048576, runtime, avg_rate);
+	}
 
 	fclose(input);
 	fclose(output);

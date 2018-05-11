@@ -1,4 +1,5 @@
 #TODO prettify Makefile
+CFLAGS=-Wall -O2
 all: mkbuild echo true false yes dd
 
 mkbuild:
@@ -14,5 +15,5 @@ false:
 yes:
 	gcc -o build/yes src/yes.c
 dd:
-	gcc -o build/dd src/dd.c
+	gcc $(CFLAGS) -o build/dd src/dd.c
 
