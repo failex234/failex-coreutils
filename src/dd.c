@@ -95,23 +95,17 @@ int main( int argc, char **argv ) {
 
     int c = 0;
 
-    while (1) {
-        c = fgetc(input);
-
-        if (c == EOF) {
-            break;
-        }
-
+    while ((c = fgetc(input)) != EOF) {
         //Check if in- and output are stdin and stdout and they're not piped
         if ((!isatty(STDIN_FILENO) || input != stdin) || (!isatty(STDOUT_FILENO) || output != stdout)) {
             fputc(c, output);
         }
     }
 
+    fputs("Complete!\n", stdout);
+
     fclose(input);
     fclose(output);
-
-    fputs("Complete!\n", stdout);
 
     return 0;
 
