@@ -12,18 +12,21 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "failex-coreutils.h"
 
 FILE *input;
 FILE *output;
+volatile int run = 1;
 
 char *getpathofarg( char *string );
 void help( char *prgname );
-
-//TODO: free all string pointers, close files in all cases
+void conclusion( void );
 
 int main( int argc, char **argv ) {
+
+    signal(SIGINT, sighandler);
     //Check if input and output are given
     //and input leads to an existing file
     int inputgiven = 0;
@@ -102,11 +105,7 @@ int main( int argc, char **argv ) {
         }
     }
 
-    fputs("Complete!\n", stdout);
-
-    fclose(input);
-    fclose(output);
-
+    conclusion();
     return 0;
 
 }
@@ -130,10 +129,22 @@ char *getpathofarg( char *string ) {
 void help( char *prgname ) {
 	printf("usage: %s [OPERAND]...\n", prgname);
 	printf("\nCopy the contents of a file to another.\n");
-	printf("cureently implemented operands:\n");
+	printf("currently implemented operands:\n");
 	printf("\nif=/path/to/file/       read from file instead of stdin\n");
 	printf("of=/path/to/file/       write to file instead of stdout\n");
 	printf("\ncurrently implemented arguments:\n");
 	printf("\n--help       show this menu then exit\n");
 	printf("--version    show version information then exit\n\n");
+}
+
+void conclusion( void ) {
+	fputs("Complete!\n", stdout);
+
+	fclose(input);
+	fclose(output);
+}
+
+void sighandler( int sig ) {
+	conclusion();
+	exit(0);
 }

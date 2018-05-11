@@ -11,4 +11,6 @@ void version( char *prgname ) {
 	fprintf(stdout, "to replace other coreutils, this project is for educational\n");
 	fprintf(stdout, "purposes. This project may not be POSIX-compliant.\n\nWritten by %s.\nGitHub Repository: %s\n", AUTHOR, URL);
 }
+
+void sighandler( int sig );
 #endif
