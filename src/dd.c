@@ -33,7 +33,9 @@ double runtime;
 
 double avg_rate;
 
+int suffixedvaltoval( char *val );
 char *getvalofarg( char *string, int start );
+char *converttobiggerunit( double size );
 void help( char *prgname );
 void conclusion( void );
 void run_dd( void );
@@ -91,7 +93,7 @@ int main( int argc, char **argv ) {
 
 	if(strstr(argv[i], "bs=")) {
 		if(!bsgiven) {
-			block_size = atoi(getvalofarg(argv[i], 3));
+			block_size = suffixedvaltoval(getvalofarg(argv[i], 3));
 			bsgiven = 1;
 		}
 		continue;
@@ -185,7 +187,7 @@ void conclusion( void ) {
 	if(b_copied < 1000000) {
 		printf("%ld bytes copied, %f s, %.02f kB/s\n", b_copied, runtime, avg_rate);
 	} else {
-		printf("%ld bytes copied (%d MB, %d MiB), %f s, %.02fkB /s\n", b_copied, (int) b_copied / 1000000, (int) b_copied / 1048576, runtime, avg_rate);
+		printf("%ld bytes copied (%d MB, %d MiB), %f s, %s/s\n", b_copied, (int) b_copied / 1000000, (int) b_copied / 1048576, runtime, converttobiggerunit(avg_rate));
 	}
 	printf("%ld blocks copied\n", blocks_copied);
 
@@ -196,4 +198,64 @@ void conclusion( void ) {
 void sighandler( int sig ) {
 	conclusion();
 	exit(0);
+}
+
+
+int suffixedvaltoval( char *val ) {
+	char suffix = 'Z';
+	char *valcpy = val;
+	int suffixfound = 0;
+
+	for (int i = 0; i < strlen(valcpy); i++) {
+		//Check string until we find a upper or lower case character
+		//Replace suffix with null character so that we can convert
+		//the string into a number
+		if ((valcpy[i] > 65 && valcpy[i] < 90) || (valcpy[i] > 97 && valcpy[i] < 122)) {
+			suffix = valcpy[i];
+			valcpy[i] = '\0';
+			suffixfound = 1;
+			break;
+		}
+	}
+
+	int tempval = atoi(valcpy);
+
+	if(!suffixfound) {
+		return tempval;
+	}
+
+	switch(suffix) {
+		case 'K':
+		case 'k':
+			return tempval * 1000;
+		case 'M':
+		case 'm':
+			return tempval * 1000000;
+		case 'G':
+		case 'g':
+			return tempval * 1000000000;
+		default:
+			return -1;
+	}
+
+}
+
+char *converttobiggerunit( double size ) {
+	char *sizewithunit = malloc(sizeof(char) * 8);
+	double newsize;
+	//Use GB as unit when size is larger than 900MB
+	if (size >= 900000000.0) {
+		newsize = size / 1000000000.0;
+		sprintf(sizewithunit, "%.02fGB", newsize);
+	} else if (size >= 900000.0) {
+		newsize = size / 1000000.0;
+		sprintf(sizewithunit, "%.02fMB", newsize);
+	} else if (size >= 900.0) {
+		newsize = size / 1000.0;
+		sprintf(sizewithunit, "%.02fKB", newsize);
+	} else {
+		sprintf(sizewithunit, "%.02fB", size);
+	}
+
+	return sizewithunit;
 }
