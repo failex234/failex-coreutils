@@ -44,10 +44,26 @@ int main( int argc, char **argv ) {
 
 
 char *getprgname( char *allargs ) {
-	int c;
-	int i;
-	while (c = allargs[i] != ' ') {
-		i++;
+	char *allargscpy = allargs;
+
+	for(int i = 0; i < strlen(allargs); i++) {
+		if (allargscpy[i] == ' ' || allargscpy == '\0') {
+			allargscpy[i] = '\0';
+		}
 	}
 
+	return allargscpy;
+}
+
+char *getprgpath( char *prgname ) {
+	char *path = malloc(sizeof(char) * (6 + strlen(prgname)));
+	sprintf(path, "/bin/%s", prgname);
+	FILE *temp = fopen(path, "r");
+	if (temp == NULL) {
+		return NULL
+	} else {
+		return path;
+	}
+	
+}
 	

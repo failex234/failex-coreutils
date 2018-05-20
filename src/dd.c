@@ -246,15 +246,15 @@ char *converttobiggerunit( double size ) {
 	//Use GB as unit when size is larger than 900MB
 	if (size >= 900000000.0) {
 		newsize = size / 1000000000.0;
-		sprintf(sizewithunit, "%.02fGB", newsize);
+		sprintf(sizewithunit, "%.02f GB", newsize);
 	} else if (size >= 900000.0) {
 		newsize = size / 1000000.0;
-		sprintf(sizewithunit, "%.02fMB", newsize);
+		sprintf(sizewithunit, "%.02f MB", newsize);
 	} else if (size >= 900.0) {
 		newsize = size / 1000.0;
-		sprintf(sizewithunit, "%.02fKB", newsize);
+		sprintf(sizewithunit, "%.02f KB", newsize);
 	} else {
-		sprintf(sizewithunit, "%.02fB", size);
+		sprintf(sizewithunit, "%.02f B", size);
 	}
 
 	return sizewithunit;
