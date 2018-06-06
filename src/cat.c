@@ -65,11 +65,13 @@ void help( char *prgname ) {
 }
 
 void sighandler( int sig ) {
+	clearfilelist();
+	fputc('\n', stderr);
 	exit(0);
 }
 
 void addtofilelist( const char *filepath ) {
-	if (!strcmp(filepath, "-")) {
+	if (strcmp(filepath, "-")) {
 		if(inputfiles == 0) {
 		       FILE *temp = fopen(filepath, "r");
 
@@ -93,7 +95,20 @@ void addtofilelist( const char *filepath ) {
 
 			files = realloc(files, sizeof(FILE) * (inputfiles + 1));
 			files[inputfiles] = temp;
+			inputfiles++;
 		}
+	} else {
+		if (inputfiles == 0) {
+			files = malloc(sizeof(FILE));
+
+			files[0] = stdin;
+			inputfiles++;
+		} else {
+			files = realloc(files, sizeof(FILE) * (inputfiles + 1));
+			files[inputfiles] = stdin;
+			inputfiles++;
+		}
+
 	}
 }
 
@@ -106,6 +121,13 @@ void clearfilelist( void ) {
 }
 
 void run_cat( void ) {
+
+	for (int i = 0; i < inputfiles; i++) {
+		int c;
+		while ((c = fgetc(files[i])) != EOF) {
+			putc(c, stdout);
+		}
+	}
 
 	clearfilelist();
 }
