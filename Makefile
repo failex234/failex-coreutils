@@ -1,6 +1,6 @@
 #TODO prettify Makefile
 CFLAGS=-Wall -O2
-all: mkbuild echo true false yes dd ls
+all: mkbuild echo true false yes dd ls cat
 
 mkbuild:
 	mkdir -p build
@@ -18,4 +18,6 @@ dd:
 	gcc $(CFLAGS) -o build/dd src/dd.c
 ls:
 	gcc $(CFLAGS) -o build/ls src/ls.c
+cat:
+	gcc $(CFLAGS) -o build/cat src/cat.c
 
